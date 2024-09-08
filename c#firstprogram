@@ -1,0 +1,20 @@
+# print hello world without importing the system. 
+class Program{
+    public static void Main(string[] args){
+        System.Console.WriteLine("hello world");
+    }
+}
+#notes- hum apna sara logic is Public Static Void Main ke andar hi likhenge means ki main function ke andar. 
+
+
+#ex-2 print hello world by importing the system. for importing we are using the using keywords
+using System;
+
+class Program
+{
+    public static void Main(string[] args)
+    {
+        Console.WriteLine("Hello, World!");
+    }
+}
+
