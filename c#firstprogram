@@ -4,7 +4,8 @@ class Program{
         System.Console.WriteLine("hello world");
     }
 }
-#notes- hum apna sara logic is Public Static Void Main ke andar hi likhenge means ki main function ke andar. 
+#notes- hum apna sara logic is public static void Main ke andar hi likhenge means ki compiler code ko compile karna yahi se start karta hai. System me S capital hoga, Console.WriteLine means camel leter me likhenge first lettr ko capital me karke.
+aur public static void Main me sab small me rhega lekin Main me M capital me rhega.
 
 
 #ex-2 print hello world by importing the system. for importing we are using the using keywords
