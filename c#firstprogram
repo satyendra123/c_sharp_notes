@@ -54,7 +54,16 @@ public class Add{
     }
 }
 
-#Ex-4 take the input from the user and print it
+#EX-4 take the input from the user and print it. ReadLine function will take the string. if we want a number then we need to convert the string to Int by using the method int a = Convert.ToInt32(input) like this
+using System;
+public class hello{
+    public static void Main(string[] args){
+        Console.WriteLine("Enter a number");
+        string input = Console.ReadLine();
+        Console.WriteLine(input);
+    }
+}
+#Ex-5 take the input from the user and print it
 using System;
 public class Add{
     public static void Main(string[] args){
