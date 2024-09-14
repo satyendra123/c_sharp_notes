@@ -72,14 +72,15 @@ public class Add{
 
 #Ex-1
 using System;
-class hello{
-        static void Main(){
-        Console.WriteLine("Enter a nam1");
+class HelloWorld
+{
+    static void Main()
+    {
+        Console.WriteLine("Enter the name");
         string input = Console.ReadLine();
-        Console.WriteLine("Hello" + input);
+        Console.WriteLine("Hello " + input);
     }
 }
-
 
 #Ex-2
 using System;
@@ -105,5 +106,6 @@ public class Add{
     }
 }
 
-#EX-5 take the input name from the user and print hello+name in the console
-using System;
+
+
+
