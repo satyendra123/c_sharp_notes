@@ -1,3 +1,17 @@
+# isme humne simple hello print kiya hai bina System class ko import kiye
+class Program{
+        static void Main(){
+        System.Console.WriteLine("hello world");
+    }
+}
+# step-2 isme humne simple hello print kiya hai by importing the System class
+using System
+class Program{
+        static void Main(){
+        Console.WriteLine("hello world");
+    }
+}
+
 # print hello world without importing the system. 
 class Program{
     public static void Main(string[] args){
@@ -63,12 +77,17 @@ public class hello{
         Console.WriteLine(input);
     }
 }
-#Ex-5 take the input from the user and print it
+TypeCasting- hum ek data type ko dusre data type me convert kar sakte hai. 
+a) using Convert() class : Convert.ToInt32(Console.ReadLine())
+b) using Parse class : int.Parse(Console.ReadLine())
+
+#Ex-5 take the input from the user and print it. 
 using System;
 public class Add{
     public static void Main(string[] args){
         Console.WriteLine("Enter the first number");
-        int b = Convert.ToInt32(Console.ReadLine());
+        //int b = Convert.ToInt32(Console.ReadLine());
+          int b = int.Parse(Console.ReadLine());
         Console.WriteLine(b);
     }
 }
