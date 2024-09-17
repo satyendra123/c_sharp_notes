@@ -181,3 +181,23 @@ class Program{
 }
 
 # Strings
+#EX-1 
+using System;
+class Program{
+    static void Main(){
+        string str="Hello Satyendra";
+        for(int i=0;i<str.Length;i++){
+            Console.WriteLine(str[i]);
+        }
+    }
+#EX-2 using foreach loop
+using System;
+class Program{
+    static void Main(){
+        string str="Hello Satyendra";
+        foreach(char c in str){
+            Console.WriteLine(c);
+        }
+    }
+}
+}
