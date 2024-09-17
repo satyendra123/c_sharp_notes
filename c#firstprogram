@@ -172,7 +172,7 @@ class Program{
         int max= x.Max();
         int min = x.Min();
         int total = x.Sum();
-        int avg = total/x.Length;
+        double avg = (double)total / x.Length;
         Console.WriteLine(max);
         Console.WriteLine(min);
         Console.WriteLine(total);
