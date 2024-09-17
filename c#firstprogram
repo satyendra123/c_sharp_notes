@@ -179,3 +179,5 @@ class Program{
         Console.WriteLine(avg);
     }
 }
+
+# Strings
