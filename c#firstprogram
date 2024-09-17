@@ -139,3 +139,25 @@ class HelloWorld
 }
 
 
+# Arrays and accessing the array using for loop and for each loop.array banane ke liye kuch is tarah se likhte hai. int[] x= {1,2,3,4,5}
+using System;
+class Program{
+    static void Main(){
+        int[] x = {21,14,51,11,19};
+        for (int i=0; i<x.Length; i++){
+            Console.WriteLine(x[i]);
+        }
+    }
+}
+
+using foreach loop
+using System;
+class Program{
+    static void Main(){
+        int[] x = {21,14,51,11,19};
+        foreach(int i in x)
+        {
+            Console.WriteLine(i);
+        }
+    }
+}
