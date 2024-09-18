@@ -321,3 +321,42 @@ class Program
         Console.WriteLine("Data: " + data);
     }
 }
+
+#Note how to make functions
+using System;
+class Program
+{
+    static void Main()
+    {
+        int num1 = 5;
+        int num2 = 10;
+        int sum = Addition(num1, num2);
+        Console.WriteLine("The sum is: " + sum);
+        int subs = substract(num1, num2);
+        Console.WriteLine("The substract is: " + subs);
+        int mul = multiply(num1, num2);
+        Console.WriteLine("The multiply is: " + mul);
+        int div = division(num1, num2);
+        Console.WriteLine("The quotient is: " + div);
+    }
+    
+    static int Addition(int a, int b)
+    {
+        return a + b;
+    }
+    
+     static int substract(int a, int b)
+    {
+        return a - b;
+    }
+    
+     static int multiply(int a, int b)
+    {
+        return a * b;
+    }
+    
+     static int division(int a, int b)
+    {
+        return b / a;
+    }
+}
