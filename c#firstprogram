@@ -273,3 +273,51 @@ class Program{
     Console.WriteLine(consonentcount);
     }
 }
+
+#EX-3 extract data from this protocol |C|1|4|10-5-#G214| 
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        // Protocol string
+        string protocol = "|C|1|4|10-5-#B56|";
+
+        // Find indexes of delimiters
+        int firstPipe = protocol.IndexOf('|');  // First '|'
+        int secondPipe = protocol.IndexOf('|', firstPipe + 1);  // Second '|'
+        int thirdPipe = protocol.IndexOf('|', secondPipe + 1);  // Third '|'
+        int fourthPipe = protocol.IndexOf('|', thirdPipe + 1);  // Fourth '|'
+        int fifthPipe = protocol.IndexOf('|', fourthPipe + 1);  // Fifth '|'
+
+        // Extract data using Substring
+        string code = protocol.Substring(firstPipe + 1, secondPipe - firstPipe - 1);  // Extract "C"
+        string data1 = protocol.Substring(secondPipe + 1, thirdPipe - secondPipe - 1);  // Extract "1"
+        string data2 = protocol.Substring(thirdPipe + 1, fourthPipe - thirdPipe - 1);  // Extract "4"
+        string sequence = protocol.Substring(fourthPipe + 1, fifthPipe - fourthPipe - 1);  // Extract "0-0-#R56"
+
+        // Split the sequence part further based on '#'
+        int hashIndex = sequence.IndexOf('#');
+        string coordinates = sequence.Substring(0, hashIndex);  // Extract "0-0-"
+        string colorAndData = sequence.Substring(hashIndex + 1);  // Extract "R56"
+
+        // Extract X and Y coordinates from "0-0"
+        string[] coords = coordinates.Split('-');
+        string xCoordinate = coords[0];  // X coordinate
+        string yCoordinate = coords[1];  // Y coordinate
+
+        // Extract color and data from "R56"
+        char color = colorAndData[0];  // Extract the color 'R'
+        string data = colorAndData.Substring(1);  // Extract the data "56"
+
+        // Output extracted data
+        Console.WriteLine("Code: " + code);
+        Console.WriteLine("id: " + data1);
+        Console.WriteLine("temporary: " + data2);
+        Console.WriteLine("X Coordinate: " + xCoordinate);
+        Console.WriteLine("Y Coordinate: " + yCoordinate);
+        Console.WriteLine("Color: " + color);
+        Console.WriteLine("Data: " + data);
+    }
+}
