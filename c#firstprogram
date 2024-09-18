@@ -223,3 +223,53 @@ class Program{
         }
     }
 }
+
+#EX-2 write a simple code which counts the number of vowels and consonents from a string
+using System;
+class Program{
+    static void Main()
+    {
+        Console.WriteLine("Enter the name");
+        String name = Console.ReadLine();
+        string str= name.ToLower();
+        Console.WriteLine(str);
+        int vowelscount=0;
+        int consonentcount=0;
+        foreach(char c in str){
+            if (c =='a'||c =='e'||c =='i'||c=='o'||c=='u')
+            {
+                vowelscount+=1;
+            }
+            else{
+                consonentcount+=1;
+            }
+        }
+    Console.WriteLine(vowelscount);
+    Console.WriteLine(consonentcount);
+    }
+}
+#Note- isi chiz ko hum kuch is tarike se bhi kar sakte hai jaise. maine ek simply ek string me sare vowels likh diye hai aur Contains() method ka use kiya hai
+using System;
+class Program{
+    static void Main()
+    {
+        Console.WriteLine("Enter the name");
+        String name = Console.ReadLine();
+        string vowels = "aeiouAEIOU";
+        string str= name.ToLower();
+        Console.WriteLine(str);
+        int vowelscount=0;
+        int consonentcount=0;
+        foreach(char c in str){
+            if(vowels.Contains(c))
+            {
+                vowelscount+=1;
+            }
+            else{
+                consonentcount+=1;
+            }
+        }
+    Console.WriteLine(vowelscount);
+    Console.WriteLine(consonentcount);
+    }
+}
