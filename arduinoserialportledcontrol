@@ -1,0 +1,66 @@
+#step-1 it will connect with the com port 10. and when i click on the led on btton then it will send N in arduino i will receive this and control the led. and when i click on the led off button then it will send F in arduino  will rec
+using System;
+using System.IO.Ports;
+using System.Windows.Forms;
+
+namespace arduinocomport
+{
+    public partial class Form1 : Form
+    {
+        private SerialPort? myport; // Marked as nullable
+
+        public Form1()
+        {
+            InitializeComponent();
+            init();
+        }
+
+        private void init()
+        {
+            try
+            {
+                myport = new SerialPort
+                {
+                    BaudRate = 9600,
+                    PortName = "COM10"
+                };
+                myport.Open();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
+            ledon.Enabled = true;
+            ledoff.Enabled = false; // Initially off
+        }
+
+        private void ledon_Click(object sender, EventArgs e)
+        {
+            if (myport != null && myport.IsOpen)
+            {
+                myport.WriteLine("N");
+                ledon.Enabled = false;
+                ledoff.Enabled = true;
+            }
+        }
+
+        private void ledoff_Click(object sender, EventArgs e)
+        {
+            if (myport != null && myport.IsOpen)
+            {
+                myport.WriteLine("F");
+                ledon.Enabled = true;
+                ledoff.Enabled = false;
+            }
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if (myport != null && myport.IsOpen)
+            {
+                myport.Close();
+            }
+            base.OnFormClosing(e);
+        }
+    }
+}
