@@ -118,8 +118,6 @@ namespace FormsArduinoSerial
             port.Write(message);
         }
 
- 
-
         private void ShowContentUI(String textToShow)
         {
             textBox1.Text = textToShow;
