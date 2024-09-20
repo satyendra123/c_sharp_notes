@@ -1,0 +1,41 @@
+#step-1 isme maine ek button banaya hai click me ke name se aur jab mai is button par click karunga to hello world ka dialog box alert ke rrop me display hokar aayega
+namespace buttonsconsole
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void button_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Hello world");
+        }
+    }
+}
+
+#step-2 isme mai chahta hu ki ek input box banaunga aur ek send button banaunga. aur jab mai is button par click karu to iski value print hokar mile mujhe. 
+namespace buttonsconsole
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void button_Click(object sender, EventArgs e)
+        {
+            // Get the value from the TextBox and print it in a Label
+            // messageBox.show(textBox_Result.Text)    agar mai ye likhunga to ek dialogue box open hoga jisme jo bhi textbox me hum likhenge wo print hoga
+            string inputValue = textBox_Result.Text;
+            resultLabel.Text = "You entered: " + inputValue;  // lekin isme humne ek label bnaya hai aur jo bhi value hum likhenge input box me to wo niche likhkar batayega ki apne ye value enter kiya hai
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
