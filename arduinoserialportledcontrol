@@ -64,3 +64,93 @@ namespace arduinocomport
         }
     }
 }
+
+#EX-2
+using System;
+using System.IO.Ports;
+using System.Linq;
+using System.Windows.Forms;
+
+namespace FormsArduinoSerial
+{
+    public partial class Form1 : Form
+    {
+        SerialPort port;
+
+        public Form1()
+        {
+            InitializeComponent();
+            this.FormClosed += new FormClosedEventHandler(Form1_FormClosed);
+            InitializeSerialPort();
+        }
+
+        private void InitializeSerialPort()
+        {
+            try
+            {
+                port = new SerialPort("COM9", 9600); // Set your board COM
+                port.Open();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening port: {ex.Message}");
+            }
+        }
+
+        void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (port != null && port.IsOpen)
+            {
+                port.Close();
+                port.Dispose();
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            PortWrite("r");
+            ShowContentUI(ReadSerial());
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            PortWrite("y");
+            ShowContentUI(ReadSerial());
+        }
+
+        private void PortWrite(string message)
+        {
+            if (port != null && port.IsOpen)
+            {
+                try
+                {
+                    port.Write(message);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error writing to port: {ex.Message}");
+                }
+            }
+        }
+
+        private void ShowContentUI(string textToShow)
+        {
+            textBox1.Text = textToShow;
+        }
+
+        public string ReadSerial()
+        {
+            string stringSerial = "";
+            try
+            {
+                stringSerial = port.ReadLine(); // Read line if Arduino sends data line by line
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error reading from port: {ex.Message}");
+            }
+
+            return stringSerial;
+        }
+    }
+}
