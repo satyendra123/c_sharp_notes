@@ -42,7 +42,7 @@ namespace arduinocomportledcontrol
     }
 }
 
-#EX-2
+#EX-2 Read the temperature send by the arduino serially
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
