@@ -1,4 +1,4 @@
-#step-1 it will connect with the com port 10. and when i click on the led on btton then it will send N in arduino i will receive this and control the led. and when i click on the led off button then it will send F in arduino  will rec
+#step-1 it will connect with the com port 1. and when i click on the led on btton then it will send 1 in arduino i will receive this and control the led. and when i click on the led off button then it will send 0 in arduino  will rec
 using System;
 using System.IO.Ports;
 using System.Windows.Forms;
