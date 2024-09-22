@@ -1,4 +1,6 @@
 #step-1 it will connect with the com port 1. and when i click on the led on btton then it will send 1 in arduino i will receive this and control the led. and when i click on the led off button then it will send 0 in arduino  will rec
+is project me maine 2 button liya hai aur unke text me LED ON aur LED OFF likha hai. aur LED ON button ka name maine btnLEDOn rakha hai aur click me maine ye likha hai btnLEDOn_Click
+ aur LED OFF button ka name maine btnLEDOff rakha hai aur click me maine ye likha hai btnLEDOff_Click likha hai.
 using System;
 using System.IO.Ports;
 using System.Windows.Forms;
