@@ -3,64 +3,39 @@ using System;
 using System.IO.Ports;
 using System.Windows.Forms;
 
-namespace arduinocomport
+namespace arduinocomportledcontrol
 {
     public partial class Form1 : Form
     {
-        private SerialPort? myport; // Marked as nullable
-
+        SerialPort serialport;
         public Form1()
         {
             InitializeComponent();
-            init();
-        }
-
-        private void init()
-        {
+            serialport = new SerialPort("COM1", 9600);
             try
             {
-                myport = new SerialPort
-                {
-                    BaudRate = 9600,
-                    PortName = "COM10"
-                };
-                myport.Open();
+                serialport.Open();
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show($"Error: {ex.Message}");
-            }
-            ledon.Enabled = true;
-            ledoff.Enabled = false; // Initially off
-        }
-
-        private void ledon_Click(object sender, EventArgs e)
-        {
-            if (myport != null && myport.IsOpen)
-            {
-                myport.WriteLine("N");
-                ledon.Enabled = false;
-                ledoff.Enabled = true;
+                Console.WriteLine("Unable to open com port- check its notin use");
             }
         }
 
-        private void ledoff_Click(object sender, EventArgs e)
+        private void btnLEDOn_Click(object sender, EventArgs e)
         {
-            if (myport != null && myport.IsOpen)
+            if (serialport.IsOpen)
             {
-                myport.WriteLine("F");
-                ledon.Enabled = true;
-                ledoff.Enabled = false;
+                serialport.WriteLine("1");
             }
         }
 
-        protected override void OnFormClosing(FormClosingEventArgs e)
+        private void btnLEDOff_Click(object sender, EventArgs e)
         {
-            if (myport != null && myport.IsOpen)
+            if (serialport.IsOpen)
             {
-                myport.Close();
+                serialport.WriteLine("0");
             }
-            base.OnFormClosing(e);
         }
     }
 }
