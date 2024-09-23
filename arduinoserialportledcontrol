@@ -13,7 +13,7 @@ namespace arduinocomportledcontrol
         public Form1()
         {
             InitializeComponent();
-            serialport = new SerialPort("COM1", 9600);
+            serialport = new SerialPort("COM18", 9600);
             try
             {
                 serialport.Open();
@@ -40,6 +40,30 @@ namespace arduinocomportledcontrol
             }
         }
     }
+}
+
+#arduino code
+void setup() 
+{
+  Serial.begin(9600);  // Start serial communication at 9600 baud rate
+  pinMode(LED_BUILTIN, OUTPUT);  // Set the built-in LED as an output
+}
+
+void loop() 
+{
+  if (Serial.available() > 0)  // Check if data is available on the serial port
+  {
+    char c = Serial.read();  // Read the incoming character
+
+    if (c == '1')  // If '1' is received, turn the LED ON
+    {
+      digitalWrite(LED_BUILTIN, HIGH);
+    }
+    else if (c == '0')  // If '0' is received, turn the LED OFF
+    {
+      digitalWrite(LED_BUILTIN, LOW);
+    }
+  }
 }
 
 #EX-2 Read the temperature send by the arduino serially
