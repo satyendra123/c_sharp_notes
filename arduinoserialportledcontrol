@@ -68,70 +68,348 @@ void loop()
 
 #EX-2 Read the temperature send by the arduino serially
 using System;
+using System.IO.Ports;
+using System.Windows.Forms;
+
+namespace arduinocomportledcontrol
+{
+    public partial class Form1 : Form
+    {
+        SerialPort serialport;
+        public Form1()
+        {
+            InitializeComponent();
+            serialport = new SerialPort("COM18", 9600);
+            try
+            {
+                serialport.Open();
+            }
+            catch
+            {
+                Console.WriteLine("Unable to open com port- check its notin use");
+            }
+        }
+
+        private void btnLEDOn_Click(object sender, EventArgs e)
+        {
+            if (serialport.IsOpen)
+            {
+                serialport.WriteLine("1");
+            }
+        }
+
+        private void btnLEDOff_Click(object sender, EventArgs e)
+        {
+            if (serialport.IsOpen)
+            {
+                serialport.WriteLine("0");
+            }
+        }
+    }
+}
+
+#EX-3 isme maine com port select karne ka baudrate set krne ka aur connect karne ka ek button banaya hai aur refresh krne ke liye ek button banaya hai. aur label hai
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
+using System.IO.Ports;
 
-namespace FormsArduinoSerial
+namespace portandbaudratewithlabel
 {
     public partial class Form1 : Form
     {
-        SerialPort port;
+        private readonly int[] baudrate = { 9600, 19200, 38400, 115200, 230400, 460800, 921600, 3860000 };
+        private SerialPort Serial = new SerialPort();
+        private void UpdateCOMPortList()
+        {
+            string[] Ports = System.IO.Ports.SerialPort.GetPortNames();
+            cBoxComPort.Items.Clear();
+            cBoxBaudRate.Items.Clear();
+
+            // Append existing COM to the cboxComport list
+            foreach (var item in Ports)
+            {
+                cBoxComPort.Items.Add(item);
+            }
+
+            // Append possible Baudrate to the cboxBaudrate list
+            foreach (var baud in baudrate)
+            {
+                cBoxBaudRate.Items.Add(baud.ToString());
+            }
+        }
         public Form1()
         {
             InitializeComponent();
-            this.FormClosed += new FormClosedEventHandler(Form1_FormClosed);
-            if (port == null)
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            UpdateCOMPortList();
+        }
+
+        private void btnConnect_Click(object sender, EventArgs e)
+        {
+            // If user click disconnect
+            if ("Disconnect" == btnConnect.Text.ToString())
             {
-                port = new SerialPort("COM9", 9600);//Set your board COM
-                port.Open();
+                if (true == Serial.IsOpen)
+                {
+                    Serial.Close();
+                }
+
+                lblStatus.Text = "Disconnected";
+                btnConnect.Text = "Connect";
+                cBoxComPort.Enabled = true;
+                cBoxBaudRate.Enabled = true;
+                btnRefresh.Enabled = true;
+
+                return;
+            }
+
+            // else we gonna open the desired COM port
+            // Get user comport from cbox
+            try
+            {
+                Serial.PortName = cBoxComPort.Text;
+            }
+            catch
+            {
+                MessageBox.Show("Error! No COM Port selected");
+                return;
+            }
+
+            try
+            {
+                Serial.BaudRate = int.Parse(cBoxBaudRate.Text.ToString());
+            }
+            catch
+            {
+                MessageBox.Show("Error! No Baudrate selected");
+                return;
+            }
+
+            // Serial Port Configuration
+            Serial.Parity = Parity.None;
+            Serial.DataBits = 8;
+            Serial.ReceivedBytesThreshold = 1;
+            Serial.StopBits = StopBits.One;
+            Serial.Handshake = Handshake.None;
+            Serial.WriteTimeout = 3000;
+
+            if (false == Serial.IsOpen)
+            {
+                try
+                {
+                    Serial.Open();
+                }
+                catch
+                {
+                    MessageBox.Show("The COM port is not accessible", "Error");
+                    return;
+                };
+
+                // double comform it is opened
+                if (true == Serial.IsOpen)
+                {
+                    btnConnect.Text = "Disconnect";
+                    lblStatus.Text = "Connected";
+                    cBoxComPort.Enabled = false;
+                    cBoxBaudRate.Enabled = false;
+                    btnRefresh.Enabled = false;
+                }
+
             }
         }
-        void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        private void btnRefresh_Click(object sender, EventArgs e)
         {
-            if (port != null && port.IsOpen)
+            UpdateCOMPortList();
+        }
+        private void button_SendClick(object sender, EventArgs e)
+        {
+            try
             {
-                port.Close();
+                if (null != Serial)
+                {
+                    if (true == Serial.IsOpen)
+                    {
+                        Serial.Write(txtSendData.Text);
+                    }
+                    else
+                    {
+                        MessageBox.Show("COM Port is not Opened");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnLEDOn_Click(object sender, EventArgs e)
         {
-            PortWrite("r");
-            ShowContentUI(ReadSerial());
+            try
+            {
+                if (Serial.IsOpen)
+                {
+                    Serial.WriteLine("1"); // Send "1" to turn the LED on
+                }
+                else
+                {
+                    MessageBox.Show("Port is not open.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
+        }
 
+        private void btnLEDOff_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (Serial.IsOpen)
+                {
+                    Serial.WriteLine("0"); // Send "0" to turn the LED off
+                }
+                else
+                {
+                    MessageBox.Show("Port is not open.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
+        }
+
+        private void trackBarBrightness_Scroll(object sender, EventArgs e)
+        {
+            try
+            {
+                if (Serial.IsOpen)
+                {
+                    lblBrightnessValue.Text = trackBarBrightness.Value.ToString();
+                    int brightnessValue = trackBarBrightness.Value;
+                    Serial.WriteLine(brightnessValue.ToString()); // Send brightness value (0-255)
+                }
+                else
+                {
+                    MessageBox.Show("Port is not open.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
 
         }
-        private void button2_Click_1(object sender, EventArgs e)
+
+        private void btnClearDisplay_Click(object sender, EventArgs e)
         {
-            PortWrite("y");
-            ShowContentUI(ReadSerial());
+            try
+            {
+                if (Serial.IsOpen)
+                {
+                    string selectedID = txtDisplayID.Text;
+                    string clearCommand = $"|C|{selectedID}|6|";
+
+                    Serial.WriteLine(clearCommand);
+                    MessageBox.Show("Display cleared.");
+                }
+                else
+                {
+                    MessageBox.Show("Port is not open. Cannot send clear command.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
         }
 
-        private void PortWrite(string message)
+        private void btnSendData_Click(object sender, EventArgs e)
         {
-            port.Write(message);
+            try
+            {
+                if (Serial.IsOpen)
+                {
+                    // Collect input data
+                    string selectedID = txtDisplayID.Text;
+                    string messageContent = txtMessage.Text;
+                    string selectedColor = cBoxColor.SelectedItem?.ToString() ?? "DefaultColor";  // Default fallback
+                    string xCoord = txtXCoord.Text;
+                    string yCoord = txtYCoord.Text;
+                    string messageType = rbtnTemporary.Checked ? "4" : "8";  // 4 for temp, 8 for permanent
+
+                    // Determine color code
+                    string colorCode = selectedColor.ToLower() switch
+                    {
+                        "red" => "r",
+                        "green" => "g",
+                        "blue" => "b",
+                        _ => "g"
+                    };
+
+                    // Format the message as per protocol
+                    string formattedMessage = $"|C|{selectedID}|{messageType}|1|{xCoord}-{yCoord}-#{colorCode}{messageContent}|";
+
+                    Serial.WriteLine(formattedMessage);
+                    MessageBox.Show("Message sent successfully.");
+                }
+                else
+                {
+                    MessageBox.Show("Port is not open. Cannot send data.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
         }
 
-        private void ShowContentUI(String textToShow)
+        private void btnSetID_Click(object sender, EventArgs e)
         {
-            textBox1.Text = textToShow;
-        }
-   
-        public String ReadSerial()
-        {
-            String stringSerial = "";
-            stringSerial = port.ReadExisting();
+            try
+            {
+                if (Serial.IsOpen)
+                {
+                    string selectedID = txtDisplayID.Text;
+                    string setIdCommand = $"|S|{selectedID}E";
 
-            return stringSerial;
+                    Serial.WriteLine(setIdCommand);
+                    MessageBox.Show($"Display ID set to {selectedID}");
+                }
+                else
+                {
+                    MessageBox.Show("Port is not open.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (Serial.IsOpen)
+            {
+                Serial.Close(); // Ensure the port is closed when the form closes
+            }
         }
     }
+}
+
 }
 
 
