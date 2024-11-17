@@ -1,0 +1,87 @@
+Step-1 c sharp coding as a client(receiving the temperature and humidity data)
+  using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+
+class TcpClientProgram
+{
+    static void Main()
+    {
+        string serverIP = "127.0.0.1";
+        int port = 8000;
+        TcpClient client = new TcpClient();
+
+        try
+        {
+            client.Connect(serverIP, port);
+            Console.WriteLine("Connected to the server.");
+            NetworkStream stream = client.GetStream();
+
+            while (true)
+            {
+                byte[] buffer = new byte[1024];
+                int bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+                if (bytesRead > 0)
+                {
+                    string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    Console.WriteLine($"Received: {receivedData}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        finally
+        {
+            client.Close();
+            Console.WriteLine("Connection closed.");
+        }
+    }
+}
+
+#step-2 python code 
+import socket
+import time
+import random
+
+def get_temperature_humidity():
+    temperature = round(random.uniform(18.0, 30.0), 2)
+    humidity = round(random.uniform(40.0, 60.0), 2)
+    return temperature, humidity
+
+server_ip = '127.0.0.1'  # Use localhost for local testing
+server_port = 8000  # Port for the server
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+try:
+    server_socket.bind((server_ip, server_port))
+    print(f"Server started, waiting for connection on {server_ip}:{server_port}...")
+    server_socket.listen(1)
+
+    client_socket, client_address = server_socket.accept()
+    print(f"Client connected: {client_address}")
+
+    try:
+        while True:
+            # Get temperature and humidity data
+            temp, humidity = get_temperature_humidity()
+            data = f"Temperature: {temp}°C, Humidity: {humidity}%"
+            client_socket.sendall(data.encode())
+            print(f"Sent: {data}")
+            time.sleep(1)  # Wait for a second
+
+    except KeyboardInterrupt:
+        print("Server shutting down.")
+    finally:
+        client_socket.close()
+
+except Exception as e:
+    print(f"Error: {e}")
+finally:
+    server_socket.close()
+
+#Note- humara jo new project hoga wo kuch aisa hoga ki hum ek winform banayenge aur is data ko ek listview me dekhne ki kosis karenge
