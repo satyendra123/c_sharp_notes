@@ -1,0 +1,147 @@
+#step-1
+using System;
+using System.Net.Sockets;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace CSharpTcpIpClient
+{
+    public partial class Form1 : Form
+    {
+        private TcpClient tcpClient;
+        private NetworkStream stream;
+        private System.IO.StreamReader reader;
+        private bool isConnected = false;
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        // Connect button click event
+        private async void btnConnect_Click(object sender, EventArgs e)
+        {
+            string ip = txtIp.Text;
+            int port = int.Parse(txtPort.Text);
+
+            try
+            {
+                tcpClient = new TcpClient(ip, port);
+                stream = tcpClient.GetStream();
+                reader = new System.IO.StreamReader(stream);
+                isConnected = true;
+
+                btnConnect.Enabled = false;
+                btnDisconnect.Enabled = true;
+                btnClear.Enabled = true;
+                txtIp.Enabled = false;
+                txtPort.Enabled = false;
+
+                MessageBox.Show("Connected to server!");
+
+                // Start receiving data asynchronously
+                await ReceiveDataAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Connection failed: " + ex.Message);
+            }
+        }
+
+        // Disconnect button click event
+        private void btnDisconnect_Click(object sender, EventArgs e)
+        {
+            if (isConnected)
+            {
+                isConnected = false;
+                tcpClient.Close();
+                reader.Close();
+
+                btnConnect.Enabled = true;
+                btnDisconnect.Enabled = false;
+                btnClear.Enabled = false;
+                txtIp.Enabled = true;
+                txtPort.Enabled = true;
+
+                MessageBox.Show("Disconnected from server.");
+            }
+        }
+
+        // Clear the ListView
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            listView.Items.Clear();
+        }
+
+        // Async method to receive data continuously
+        private async Task ReceiveDataAsync()
+        {
+            try
+            {
+                while (isConnected)
+                {
+                    string data = await reader.ReadLineAsync();
+                    Console.WriteLine("Received data: " + data);  // Log received data for debugging
+
+                    if (!string.IsNullOrEmpty(data))
+                    {
+                        this.Invoke((MethodInvoker)delegate
+                        {
+                            // Split the received data into temperature and humidity
+                            string[] dataParts = data.Split(',');
+
+                            if (dataParts.Length == 2)
+                            {
+                                string temperature = dataParts[0].Trim();
+                                string humidity = dataParts[1].Trim();
+
+                                // Add data to the ListView
+                                ListViewItem item = new ListViewItem(temperature);
+                                item.SubItems.Add(humidity);
+                                listView.Items.Add(item);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        Console.WriteLine("No data received");  // Log in case of empty data
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error receiving data: " + ex.Message);
+            }
+        }
+
+    }
+}
+
+#step-2
+import socket
+import time
+import random
+
+# Setup server to listen on localhost:8000
+HOST = '127.0.0.1'
+PORT = 8000
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_socket.bind((HOST, PORT))
+server_socket.listen(1)
+
+print(f"Server started, waiting for connection on {HOST}:{PORT}...")
+
+# Accept the client connection
+client_socket, client_address = server_socket.accept()
+print(f"Client connected: {client_address}")
+
+# Simulate sending temperature and humidity data
+while True:
+    temperature = round(random.uniform(18, 30), 2)  # Random temperature between 18 and 30
+    humidity = round(random.uniform(40, 60), 2)     # Random humidity between 40% and 60%
+    data = f"Temperature: {temperature}°C, Humidity: {humidity}%"
+    client_socket.sendall((data + "\n").encode())
+    print(f"Sent: {data}")
+    time.sleep(2)  # Wait for 2 seconds before sending the next data
