@@ -1,0 +1,379 @@
+#step-1 Form.Designer.cs
+namespace ArduinoControl
+{
+    partial class Form1
+    {
+        private System.ComponentModel.IContainer components = null;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        private void InitializeComponent()
+        {
+            txtIP = new TextBox();
+            txtPort = new TextBox();
+            btnConnect = new Button();
+            btnDisconnect = new Button();
+            btnRelayOn = new Button();
+            btnRelayOff = new Button();
+            btnWriteIP = new Button();
+            lstLog = new ListView();
+            lblIP = new Label();
+            lblPort = new Label();
+            Clear = new Button();
+            SuspendLayout();
+            // 
+            // txtIP
+            // 
+            txtIP.Location = new Point(90, 20);
+            txtIP.Name = "txtIP";
+            txtIP.Size = new Size(160, 31);
+            txtIP.TabIndex = 0;
+            txtIP.Text = "127.0.0.1";
+            txtIP.TextChanged += txtIP_TextChanged;
+            // 
+            // txtPort
+            // 
+            txtPort.Location = new Point(90, 69);
+            txtPort.Name = "txtPort";
+            txtPort.Size = new Size(160, 31);
+            txtPort.TabIndex = 1;
+            txtPort.Text = "6000";
+            // 
+            // btnConnect
+            // 
+            btnConnect.Location = new Point(12, 130);
+            btnConnect.Name = "btnConnect";
+            btnConnect.Size = new Size(98, 40);
+            btnConnect.TabIndex = 2;
+            btnConnect.Text = "Connect";
+            btnConnect.UseVisualStyleBackColor = true;
+            btnConnect.Click += btnConnect_Click;
+            // 
+            // btnDisconnect
+            // 
+            btnDisconnect.Location = new Point(130, 130);
+            btnDisconnect.Name = "btnDisconnect";
+            btnDisconnect.Size = new Size(118, 40);
+            btnDisconnect.TabIndex = 3;
+            btnDisconnect.Text = "Disconnect";
+            btnDisconnect.UseVisualStyleBackColor = true;
+            btnDisconnect.Click += btnDisconnect_Click;
+            // 
+            // btnRelayOn
+            // 
+            btnRelayOn.Location = new Point(12, 186);
+            btnRelayOn.Name = "btnRelayOn";
+            btnRelayOn.Size = new Size(98, 39);
+            btnRelayOn.TabIndex = 4;
+            btnRelayOn.Text = "Relay ON";
+            btnRelayOn.UseVisualStyleBackColor = true;
+            btnRelayOn.Click += btnRelayOn_Click;
+            // 
+            // btnRelayOff
+            // 
+            btnRelayOff.Location = new Point(130, 186);
+            btnRelayOff.Name = "btnRelayOff";
+            btnRelayOff.Size = new Size(120, 39);
+            btnRelayOff.TabIndex = 5;
+            btnRelayOff.Text = "Relay OFF";
+            btnRelayOff.UseVisualStyleBackColor = true;
+            btnRelayOff.Click += btnRelayOff_Click;
+            // 
+            // btnWriteIP
+            // 
+            btnWriteIP.Location = new Point(12, 242);
+            btnWriteIP.Name = "btnWriteIP";
+            btnWriteIP.Size = new Size(98, 43);
+            btnWriteIP.TabIndex = 6;
+            btnWriteIP.Text = "Write IP";
+            btnWriteIP.UseVisualStyleBackColor = true;
+            btnWriteIP.Click += btnWriteIP_Click;
+            // 
+            // lstLog
+            // 
+            lstLog.Location = new Point(295, 20);
+            lstLog.Name = "lstLog";
+            lstLog.Size = new Size(594, 371);
+            lstLog.TabIndex = 7;
+            lstLog.UseCompatibleStateImageBehavior = false;
+            lstLog.SelectedIndexChanged += lstLog_SelectedIndexChanged;
+            // 
+            // lblIP
+            // 
+            lblIP.AutoSize = true;
+            lblIP.Location = new Point(-1, 20);
+            lblIP.Name = "lblIP";
+            lblIP.Size = new Size(85, 25);
+            lblIP.TabIndex = 8;
+            lblIP.Text = "Server IP:";
+            // 
+            // lblPort
+            // 
+            lblPort.AutoSize = true;
+            lblPort.Location = new Point(28, 69);
+            lblPort.Name = "lblPort";
+            lblPort.Size = new Size(48, 25);
+            lblPort.TabIndex = 9;
+            lblPort.Text = "Port:";
+            // 
+            // Clear
+            // 
+            Clear.Location = new Point(130, 242);
+            Clear.Name = "Clear";
+            Clear.Size = new Size(118, 43);
+            Clear.TabIndex = 10;
+            Clear.Text = "Clear";
+            Clear.UseVisualStyleBackColor = true;
+            Clear.Click += Clear_Click;
+            // 
+            // Form1
+            // 
+            ClientSize = new Size(968, 403);
+            Controls.Add(Clear);
+            Controls.Add(lblIP);
+            Controls.Add(lblPort);
+            Controls.Add(txtIP);
+            Controls.Add(txtPort);
+            Controls.Add(btnConnect);
+            Controls.Add(btnDisconnect);
+            Controls.Add(btnRelayOn);
+            Controls.Add(btnRelayOff);
+            Controls.Add(btnWriteIP);
+            Controls.Add(lstLog);
+            Name = "Form1";
+            Text = "Arduino Control Panel";
+            Load += Form1_Load;
+            ResumeLayout(false);
+            PerformLayout();
+        }
+
+        private System.Windows.Forms.TextBox txtIP;
+        private System.Windows.Forms.TextBox txtPort;
+        private System.Windows.Forms.Button btnConnect;
+        private System.Windows.Forms.Button btnDisconnect;
+        private System.Windows.Forms.Button btnRelayOn;
+        private System.Windows.Forms.Button btnRelayOff;
+        private System.Windows.Forms.Button btnWriteIP;
+        private System.Windows.Forms.ListView lstLog;
+        private System.Windows.Forms.Label lblIP;
+        private System.Windows.Forms.Label lblPort;
+        private Button Clear;
+    }
+}
+
+#Step-2 Form.cs
+using System;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+
+namespace ArduinoControl
+{
+    public partial class Form1 : Form
+    {
+        private TcpClient client;
+        private NetworkStream stream;
+        private Thread receiveThread; // Thread to continuously receive data
+        private bool isReceiving = false; // Flag to control continuous receiving
+
+        public Form1()
+        {
+            InitializeComponent();
+            InitializeCustomComponents();
+        }
+
+        private void InitializeCustomComponents()
+        {
+            this.Size = new System.Drawing.Size(960, 540);
+            lstLog.View = View.Details;
+            lstLog.Columns.Add("Log", lstLog.Width - 5);
+            lstLog.FullRowSelect = true;
+        }
+
+        private void btnConnect_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string ip = txtIP.Text;
+                int port = Convert.ToInt32(txtPort.Text);
+
+                client = new TcpClient(ip, port);
+                stream = client.GetStream();
+
+                AppendLog($"Connected to {ip}:{port}");
+
+                // Start the background thread for receiving data
+                isReceiving = true;
+                receiveThread = new Thread(ReceiveData);
+                receiveThread.IsBackground = true;
+                receiveThread.Start();
+
+                btnConnect.Enabled = false;
+                btnDisconnect.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"Connection failed: {ex.Message}");
+            }
+        }
+
+        private void btnDisconnect_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Stop the receiving thread and close the connection
+                isReceiving = false;
+                if (receiveThread != null && receiveThread.IsAlive)
+                {
+                    receiveThread.Join(); // Wait for the receive thread to finish
+                }
+
+                if (stream != null) stream.Close();
+                if (client != null) client.Close();
+
+                AppendLog("Disconnected.");
+                btnConnect.Enabled = true;
+                btnDisconnect.Enabled = false;
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"Disconnection failed: {ex.Message}");
+            }
+        }
+
+        private void btnRelayOn_Click(object sender, EventArgs e)
+        {
+            SendCommand("|OPENEN%");
+        }
+
+        private void btnRelayOff_Click(object sender, EventArgs e)
+        {
+            SendCommand("|EXITEN%");
+        }
+
+        private void btnWriteIP_Click(object sender, EventArgs e)
+        {
+            string newIP = txtIP.Text.Trim();
+            if (string.IsNullOrEmpty(newIP))
+            {
+                MessageBox.Show("Please enter a valid IP address.", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            SendCommand($"WRITEIP:{newIP}%");
+        }
+
+        private void SendCommand(string command)
+        {
+            try
+            {
+                if (stream == null || !client.Connected)
+                {
+                    AppendLog("Not connected to the server.");
+                    return;
+                }
+
+                byte[] data = Encoding.ASCII.GetBytes(command);
+                stream.Write(data, 0, data.Length);
+
+                AppendLog($"Command sent: {command}");
+
+                // Optionally, wait for response
+                byte[] buffer = new byte[256];
+                int bytesRead = stream.Read(buffer, 0, buffer.Length);
+                string response = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+
+                AppendLog($"Response received: {response}");
+            }
+            catch (Exception ex)
+            {
+                AppendLog($"Error: {ex.Message}");
+            }
+        }
+
+        private void AppendLog(string message)
+        {
+            // This method is invoked to update the UI from the receiving thread
+            if (lstLog.InvokeRequired)
+            {
+                lstLog.Invoke(new Action<string>(AppendLog), message);
+            }
+            else
+            {
+                var item = new ListViewItem($"{DateTime.Now}: {message}");
+                lstLog.Items.Add(item);
+            }
+        }
+
+        private void ReceiveData()
+        {
+            try
+            {
+                while (isReceiving)
+                {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+                    if (bytesRead > 0)
+                    {
+                        string data = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                        AppendLog($"Received: {data}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (isReceiving) // Only log if still receiving
+                    AppendLog($"Error receiving data: {ex.Message}");
+            }
+        }
+
+        private void Clear_Click(object sender, EventArgs e)
+        {
+            lstLog.Items.Clear();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // Initialize or set up controls, if needed
+        }
+
+        private void txtIP_TextChanged(object sender, EventArgs e)
+        {
+            // Handle text changes if necessary
+        }
+
+        private void lstLog_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Handle list item selection if necessary
+        }
+    }
+}
+
+#step-3 Program.cs
+
+namespace ArduinoControl
+{
+    internal static class Program
+    {
+        /// <summary>
+        ///  The main entry point for the application.
+        /// </summary>
+        [STAThread]
+        static void Main()
+        {
+            // To customize application configuration such as set high DPI settings or default font,
+            // see https://aka.ms/applicationconfiguration.
+            ApplicationConfiguration.Initialize();
+            Application.Run(new Form1());
+        }
+    }
+}
+
