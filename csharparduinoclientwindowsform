@@ -377,3 +377,107 @@ namespace ArduinoControl
     }
 }
 
+#step-4 python code
+import socket
+import threading
+import logging
+from time import sleep
+import random
+
+# Configuration
+SERVER_IP = "127.0.0.1"  # Localhost for testing
+SERVER_PORT = 6000       # Port for the server to listen on
+BUFFER_SIZE = 1024       # Buffer size for receiving data
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+
+def send_hlt_command(client_socket):
+    """Continuously send '|HLT%' command to the client every 3 seconds."""
+    try:
+        while True:
+            client_socket.sendall("|HLT%".encode('utf-8'))
+            logging.info("[SENT] |HLT% command to client")
+            sleep(3)  # Wait for 3 seconds
+    except (BrokenPipeError, ConnectionResetError):
+        logging.warning("[DISCONNECTED] Client disconnected during |HLT% command.")
+    except Exception as e:
+        logging.error(f"[ERROR] Error sending |HLT% command: {e}")
+
+def send_temp_humidity(client_socket):
+    """Send random temperature and humidity data every 5 seconds."""
+    try:
+        while True:
+            temp = round(random.uniform(20, 30), 2)  # Generate random temperature
+            humidity = round(random.uniform(40, 60), 2)  # Generate random humidity
+            message = f"TEMP:{temp},HUM:{humidity}"
+            client_socket.sendall(message.encode('utf-8'))
+            logging.info(f"[SENT] {message}")
+            sleep(5)  # Send every 5 seconds
+    except (BrokenPipeError, ConnectionResetError):
+        logging.warning("[DISCONNECTED] Client disconnected during temperature/humidity data send.")
+    except Exception as e:
+        logging.error(f"[ERROR] Error sending temperature/humidity data: {e}")
+
+def handle_client(client_socket, address):
+    """Handle client connections and commands."""
+    logging.info(f"[NEW CONNECTION] Connected to {address}")
+    client_socket.settimeout(300)  # Set a timeout of 5 minutes for idle clients
+
+    # Start threads to send '|HLT%' and temperature/humidity data
+    hlt_thread = threading.Thread(target=send_hlt_command, args=(client_socket,))
+    temp_humidity_thread = threading.Thread(target=send_temp_humidity, args=(client_socket,))
+    hlt_thread.daemon = True
+    temp_humidity_thread.daemon = True
+    hlt_thread.start()
+    temp_humidity_thread.start()
+
+    try:
+        while True:
+            # Receive data from the client
+            data = client_socket.recv(BUFFER_SIZE).decode('utf-8').strip()
+            if not data:
+                logging.info(f"[DISCONNECTED] Client at {address} disconnected.")
+                break
+
+            logging.info(f"[RECEIVED] {data} from {address}")
+
+            # Respond based on received data
+            if data == "|OPENEN%":
+                response = "Relay turned ON"
+            elif data == "|EXITEN%":
+                response = "Relay turned OFF"
+            else:
+                response = "Invalid command"
+
+            client_socket.sendall(response.encode('utf-8'))
+            logging.info(f"[SENT] {response}")
+
+    except socket.timeout:
+        logging.warning(f"[TIMEOUT] Connection to {address} timed out.")
+    except Exception as e:
+        logging.error(f"[ERROR] An error occurred with {address}: {e}")
+    finally:
+        client_socket.close()
+        logging.info(f"[CONNECTION CLOSED] {address}")
+
+def start_server():
+    """Start the TCP server."""
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((SERVER_IP, SERVER_PORT))
+    server.listen(5)  # Allow up to 5 connections in the backlog
+    logging.info(f"[LISTENING] Server is listening on {SERVER_IP}:{SERVER_PORT}")
+
+    try:
+        while True:
+            client_socket, client_address = server.accept()
+            thread = threading.Thread(target=handle_client, args=(client_socket, client_address))
+            thread.start()
+            logging.info(f"[ACTIVE CONNECTIONS] {threading.active_count() - 1}")
+    except KeyboardInterrupt:
+        logging.info("[SHUTTING DOWN] Server is shutting down.")
+    finally:
+        server.close()
+
+if __name__ == "__main__":
+    start_server()
