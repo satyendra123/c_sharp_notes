@@ -1,0 +1,219 @@
+#step-1
+namespace ESP32LEDControl
+{
+    partial class Form1
+    {
+        private System.ComponentModel.IContainer components = null;
+
+        private System.Windows.Forms.TextBox ipTextBox;
+        private System.Windows.Forms.Button turnOnButton;
+        private System.Windows.Forms.Button turnOffButton;
+        private System.Windows.Forms.Label ipLabel;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        private void InitializeComponent()
+        {
+            this.ipLabel = new System.Windows.Forms.Label();
+            this.ipTextBox = new System.Windows.Forms.TextBox();
+            this.turnOnButton = new System.Windows.Forms.Button();
+            this.turnOffButton = new System.Windows.Forms.Button();
+            this.SuspendLayout();
+
+            // 
+            // ipLabel
+            // 
+            this.ipLabel.AutoSize = true;
+            this.ipLabel.Location = new System.Drawing.Point(12, 20);
+            this.ipLabel.Name = "ipLabel";
+            this.ipLabel.Size = new System.Drawing.Size(123, 15);
+            this.ipLabel.TabIndex = 0;
+            this.ipLabel.Text = "ESP32 IP Address:";
+
+            // 
+            // ipTextBox
+            // 
+            this.ipTextBox.Location = new System.Drawing.Point(150, 17);
+            this.ipTextBox.Name = "ipTextBox";
+            this.ipTextBox.Size = new System.Drawing.Size(200, 23);
+            this.ipTextBox.TabIndex = 1;
+            this.ipTextBox.Text = "192.168.1.100";
+
+            // 
+            // turnOnButton
+            // 
+            this.turnOnButton.Location = new System.Drawing.Point(12, 60);
+            this.turnOnButton.Name = "turnOnButton";
+            this.turnOnButton.Size = new System.Drawing.Size(150, 40);
+            this.turnOnButton.TabIndex = 2;
+            this.turnOnButton.Text = "Turn On";
+            this.turnOnButton.UseVisualStyleBackColor = true;
+            this.turnOnButton.Click += new System.EventHandler(this.TurnOnButton_Click);
+
+            // 
+            // turnOffButton
+            // 
+            this.turnOffButton.Location = new System.Drawing.Point(200, 60);
+            this.turnOffButton.Name = "turnOffButton";
+            this.turnOffButton.Size = new System.Drawing.Size(150, 40);
+            this.turnOffButton.TabIndex = 3;
+            this.turnOffButton.Text = "Turn Off";
+            this.turnOffButton.UseVisualStyleBackColor = true;
+            this.turnOffButton.Click += new System.EventHandler(this.TurnOffButton_Click);
+
+            // 
+            // Form1
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(400, 120);
+            this.Controls.Add(this.turnOffButton);
+            this.Controls.Add(this.turnOnButton);
+            this.Controls.Add(this.ipTextBox);
+            this.Controls.Add(this.ipLabel);
+            this.Name = "Form1";
+            this.Text = "ESP32 LED Control";
+            this.ResumeLayout(false);
+            this.PerformLayout();
+        }
+
+        #endregion
+    }
+}
+
+#step-2
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace ESP32LEDControl
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private async void TurnOnButton_Click(object sender, EventArgs e)
+        {
+            await SendGetRequest("on");
+        }
+
+        private async void TurnOffButton_Click(object sender, EventArgs e)
+        {
+            await SendGetRequest("off");
+        }
+
+        private async Task SendGetRequest(string state)
+        {
+            string ipAddress = ipTextBox.Text.Trim(); // TextBox to enter IP address
+
+            if (string.IsNullOrEmpty(ipAddress))
+            {
+                MessageBox.Show("Please enter a valid IP address.");
+                return;
+            }
+
+            string url = $"http://{ipAddress}/led?state={state}"; // URL for the GET request
+
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    HttpResponseMessage response = await client.GetAsync(url);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        MessageBox.Show($"LED {state.ToUpper()} request sent successfully!");
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Failed to send request. Status Code: {response.StatusCode}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error: {ex.Message}");
+                }
+            }
+        }
+    }
+}
+
+#step-3 esp32 code 
+#include <WiFi.h>
+#include <WebServer.h>
+
+// Replace these with your WiFi credentials
+const char* ssid = "Airtel_moha_9230";
+const char* password = "Houston#198";
+
+WebServer server(80);
+
+const int ledPin = 2;
+
+void handleLEDControl() {
+
+  if (server.hasArg("state")) {
+    String state = server.arg("state");
+    
+    if (state == "on") {
+      digitalWrite(ledPin, HIGH);
+      server.send(200, "text/plain", "LED turned ON");
+    } else if (state == "off") {
+      digitalWrite(ledPin, LOW);
+      server.send(200, "text/plain", "LED turned OFF");
+    } else {
+      server.send(400, "text/plain", "Invalid state. Use 'on' or 'off'.");
+    }
+  } else {
+    server.send(400, "text/plain", "Missing 'state' parameter.");
+  }
+}
+
+void setup() {
+  // Initialize Serial Monitor
+  Serial.begin(115200);
+  delay(1000);
+
+  // Initialize LED pin
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
+
+  // Connect to WiFi
+  Serial.print("Connecting to WiFi");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nConnected to WiFi.");
+  Serial.print("IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  // Define route for LED control
+  server.on("/led", HTTP_GET, handleLEDControl);
+
+  // Start the server
+  server.begin();
+  Serial.println("HTTP server started.");
+}
+
+void loop() {
+  // Handle client requests
+  server.handleClient();
+}
