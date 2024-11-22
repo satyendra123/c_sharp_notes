@@ -217,3 +217,6 @@ void loop() {
   // Handle client requests
   server.handleClient();
 }
+
+#step-4 turn on led request - http://192.168.1.21/led?state=on
+        turn off led request - http://192.168.1.21/led?state=off
